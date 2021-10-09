@@ -1,22 +1,27 @@
 function get_unread() {
     var headers = new Headers();
-    headers.append('Authorization', 'Basic ' + btoa(localStorage["minifluxlogin"] + ':' + localStorage["minifluxpassword"]));
+    headers.append('X-Auth-Token', localStorage["minifluxtoken"]);
     
     fetch(localStorage["minifluxurl"] + '/v1/entries?status=unread&direction=desc', {
             method:'GET',
             headers: headers,
         })
+        .catch(e => console.error(e.message))
         .then(
             r => r.json()
         )
         .then(
             obj => {
+                var count = new String();
                 if (obj.total > 0) {
-                    chrome.browserAction.setBadgeText({ text: '' + obj.total + '' });
-                    notification(obj.entries[0].feed.title);
+                    count = obj.total.toString();
+                    if (localStorage["notifications"] == 1) {
+                        notification(obj.entries[0].feed.title);
+                    }
                 } else {
-                    chrome.browserAction.setBadgeText({ text: '' });
+                    count = '';
                 }
+                chrome.browserAction.setBadgeText({ text: count });
             }
         );
 }

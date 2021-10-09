@@ -1,7 +1,6 @@
-
 if (localStorage["minifluxurl"] != undefined) {
-    chrome.browserAction.setBadgeText({ text: '' });
-    chrome.tabs.create({url: localStorage["minifluxurl"] + '/unread'});
+    chrome.extension.getBackgroundPage().get_unread();
 } else {
     chrome.tabs.create({url: "options.html"});
 }
+self.close();

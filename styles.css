@@ -8,10 +8,18 @@ html{
 }
 
 body{
-	font-size:0.825em;
+	font-size:13px;
 	color:#eee;
 	background:url("img/bg.png") repeat-x #222222;
 	font-family:Arial, Helvetica, sans-serif;
+}
+
+a{
+	color: #d0ecfd;
+}
+
+a:hover {
+	color: #77cbff;
 }
 
 #carbonForm{
@@ -30,8 +38,8 @@ body{
 	font-family:Century Gothic,Myriad Pro,Arial,Helvetica,sans-serif;
 	font-size:40px;
 	font-weight:normal;
-	padding:0 0 30px 10px;
-	text-align:left;
+	padding:0;
+	text-align:center;
 }
 
 .fieldContainer{
@@ -41,6 +49,7 @@ body{
 	-moz-box-shadow:0 0 20px #292929 inset;
 	-webkit-box-shadow:0 0 20px #292929 inset;
 	box-shadow:0 0 20px #292929 inset;
+	text-align: center;
 }
 
 #carbonForm,.fieldContainer{
@@ -56,22 +65,17 @@ body{
 
 #submit{
 	/* The submit button */
-	border:1px solid #f4f4f4;
+	font-family:Century Gothic,Myriad Pro,Arial,Helvetica,sans-serif;
+	border:1px solid #d0ecfd;
 	cursor:pointer;
 	height:40px;
-	text-indent:-9999px;
-	text-transform:uppercase;
 	width:110px;
-	
-	background:url("img/submit.png") no-repeat center center #d0ecfd;
+	text-align: center;
+	font-size: 27px;
 	
 	-moz-border-radius:6px;
 	-webkit-border-radius:6px;
 	border-radius:6px;
-}
-
-#submit.active{
-	background-image:url("img/preloader.gif");
 }
 
 #submit:hover{
@@ -86,6 +90,9 @@ body{
 	background: #EFEFEF;
 	color: #222222;
 	text-align: center;
+	-moz-border-radius:12px;
+	-webkit-border-radius:12px;
+	border-radius:12px;
 }
 
 .warning {
@@ -95,6 +102,9 @@ body{
 	background: #FFFFCC;
 	color: #222222;
 	text-align: center;
+	-moz-border-radius:12px;
+	-webkit-border-radius:12px;
+	border-radius:12px;
 }
 
 .success {
@@ -105,6 +115,9 @@ body{
 	color: #008000;
 	font-weight: bold;
 	text-align: center;
+	-moz-border-radius:12px;
+	-webkit-border-radius:12px;
+	border-radius:12px;
 }
 
 .error {
@@ -115,6 +128,9 @@ body{
 	color: #CC0000;
 	font-weight: bold;
 	text-align: center;
+	-moz-border-radius:12px;
+	-webkit-border-radius:12px;
+	border-radius:12px;
 }
 
 fieldset { 
@@ -127,11 +143,16 @@ fieldset {
 }
 
 label { 
-	float: left; width: 200px;
+	float: left;
+	width: 200px;
 }
 
 input {
 	width: 200px; 
+}
+
+select {
+	width: 200px;
 }
 
 #update {

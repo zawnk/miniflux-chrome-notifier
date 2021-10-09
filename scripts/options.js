@@ -1,61 +1,53 @@
-if (localStorage["minifluxlogin"] == undefined && localStorage["minifluxlogin"] == undefined && localStorage["minifluxlogin"] == undefined) {
-    $("div#status").attr("class", "info");
-    $('div#status').text('Enter your data to login to the Miniflux.');
+function save_settings() {
+    localStorage["minifluxurl"] = document.getElementById('minifluxurl').value;
+    localStorage["minifluxtoken"] = document.getElementById('minifluxtoken').value;
+    localStorage["update_seconds"] = document.getElementById('update_seconds').value;
+    localStorage["notifications"] = document.getElementById('notifications').checked ? 1 : 0;
+}
+
+function load_settings() {
+    document.getElementById('minifluxurl').value = localStorage["minifluxurl"];
+    document.getElementById('minifluxtoken').value = localStorage["minifluxtoken"];
+    document.getElementById('update_seconds').value = localStorage["update_seconds"];
+    document.getElementById('notifications').checked = localStorage["notifications"] == 1 ? true : false;
+}
+
+function update_status(cls, txt) {
+    document.getElementById('status').innerHTML =
+        '<div class="' + cls + '">' + txt + '</div>';
+}
+
+if (localStorage["minifluxurl"] == undefined && localStorage["minifluxtoken"] == undefined) {
+    update_status('info', 'enter your token to authenticate');
 
     document.getElementById('minifluxurl').value = '';
-    document.getElementById('minifluxlogin').value = '';
-    document.getElementById('minifluxpassword').value = '';
+    document.getElementById('minifluxtoken').value = '';
 
-    $('#check_update').hide();
+    //$('#check_update').hide();
 } else {
     load_settings();
 }
 
-$("#submit").click(function() {
-    localStorage["minifluxurl"] = document.getElementById('minifluxurl').value;
-    localStorage["minifluxlogin"] = document.getElementById('minifluxlogin').value;
-    localStorage["minifluxpassword"] = document.getElementById('minifluxpassword').value;
-    localStorage["update_seconds"] = document.getElementById('update_seconds').value;
-});
+document.getElementById('signupForm').addEventListener('submit', save_settings);
 
-
-$("#update").click(function() {
-    localStorage["update_seconds"] = document.getElementById('update_seconds').value;
-});
-
-function load_settings() {
-	var minifluxurl = localStorage["minifluxurl"];
-    var minifluxlogin = localStorage["minifluxlogin"];
-    var minifluxpassword = localStorage["minifluxpassword"];
-    var update_seconds = localStorage["update_seconds"];
-
-    document.getElementById('minifluxurl').value = minifluxurl;
-    document.getElementById('minifluxlogin').value = minifluxlogin;
-    document.getElementById('minifluxpassword').value = '';
-    document.getElementById('update_seconds').value = update_seconds;
-}
-
-if (localStorage["minifluxlogin"] != undefined && localStorage["minifluxlogin"] != undefined && localStorage["minifluxlogin"] != undefined) {
+if (localStorage["minifluxurl"] != undefined && localStorage["minifluxtoken"] != undefined) {
     var headers = new Headers();
-    headers.append('Authorization', 'Basic ' + btoa(localStorage["minifluxlogin"] + ':' + localStorage["minifluxpassword"]));
+    headers.append('X-Auth-Token', localStorage["minifluxtoken"]);
 
-    fetch(localStorage["minifluxurl"] + '/v1/users/' + localStorage["minifluxlogin"], {
+    fetch(localStorage["minifluxurl"] + '/v1/me', {
             method:'GET',
             headers: headers,
         })
         .then(
-            r => r.json()
-        )
-        .then(
-            obj => {
-                if (obj.username == localStorage["minifluxlogin"]) {
-                    $("div#status").attr("class", "success");
-                    $('div#status').text('You are connected with your Miniflux.');
+            response => {
+                if (!response.ok) {
+                    update_status('error', 'could not authenticate');
                 } else {
-                    $("div#status").attr("class", "error");
-                    $('div#status').text('You are not connected with any Miniflux.');
-                    alert('Please enter your correct login details');
+                    update_status('success', 'connected to miniflux instance');
                 }
             }
+        )
+        .catch(
+            update_status("error", "could not reach miniflux instance")
         );
 }
