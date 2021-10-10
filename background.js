@@ -6,7 +6,6 @@ function get_unread() {
             method:'GET',
             headers: headers,
         })
-        .catch(e => console.error(e.message))
         .then(
             r => r.json()
         )
@@ -47,14 +46,23 @@ function notification(from) {
     });
 }
 
-if (localStorage["update_seconds"] != undefined) {
-    chrome.alarms.create("notification", { delayInMinutes: parseInt(localStorage["update_seconds"]), periodInMinutes: parseInt(localStorage["update_seconds"]) });
-} else {
-    chrome.alarms.create("notification", { delayInMinutes: 1, periodInMinutes: 1 });
+function open_miniflux(info, tab) {
+    chrome.tabs.create({url: localStorage["minifluxurl"] + '/unread'});
 }
 
-  chrome.alarms.onAlarm.addListener(function(alarm) {
+chrome.contextMenus.create({
+    title: 'Open Miniflux',
+    contexts: ["browser_action"],
+    onclick: open_miniflux
+})
+
+get_unread();
+
+var update_period = "update_seconds" in localStorage ? parseInt(localStorage["update_seconds"]) : 1;
+chrome.alarms.create("notification", {delayInMinutes: update_period, periodInMinutes: update_period});
+
+chrome.alarms.onAlarm.addListener(function(alarm) {
     if (alarm.name === "notification") {
         get_unread();
     }
-  });
+});

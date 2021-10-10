@@ -1,21 +1,21 @@
 {
-  "name": "Miniflux Notifications",
-  "version": "1.0.3.4",
+  "name": "Miniflux Notifier Remixed",
+  "version": "2.0.0",
   "manifest_version": 2,
-  "description": "Miniflux feed reader Notifications",
+  "description": "Miniflux Notifier",
   "icons": {
-      "16": "img/icon.png",
-      "32": "img/icon.png",
-      "48": "img/icon.png",
-      "64": "img/icon.png",
-      "128": "img/icon.png"
+      "16": "img/rss.png",
+      "32": "img/rss.png",
+      "48": "img/rss.png",
+      "64": "img/rss.png",
+      "128": "img/rss.png"
   },
-  "homepage_url": "https://gitlab.itunix.eu/skorotkiewicz/miniflux-chrome-notifier",
   "background": {
       "persistent": true,
       "scripts": ["background.js"]
   },
   "permissions": [
+      "contextMenus",
       "notifications", 
       "storage", 
       "alarms"
@@ -26,8 +26,8 @@
     "open_in_tab": false
   },
   "browser_action": {
-      "default_icon": "img/icon.png",
-      "default_title": "Miniflux Notifier",
+      "default_icon": "img/rss.png",
+      "default_title": "Miniflux Notifier Remixed",
       "default_popup": "popup.html"
   }
 }
