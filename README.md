@@ -13,7 +13,7 @@ will probably be more efficient.
 Features implemented so far:
 * notifications are now optional, off by default
 * authentication via [Miniflux API key](https://miniflux.app/docs/api.html#authentication) instead of basic http (login+password)
-* a slightly reworked options page
+* a slightly reworked options page (including getting rid of jQuery)
 * added context menu option to open Miniflux instance in a new tab
 * clicking icon now updates the counter / sends notification
 
@@ -27,4 +27,4 @@ TODO:
 Disclaimer:
 I am in no way proficient with JavaScript. Most of the work done involved a lot
 of trial and error. I plan to use this extension, therefore expect some sort of
-maintenance.
+maintenance, but no promises. Pull requests are very much welcome.
