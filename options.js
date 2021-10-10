@@ -17,13 +17,8 @@ function update_status(cls, txt) {
         '<div class="' + cls + '">' + txt + '</div>';
 }
 
-if (localStorage["minifluxurl"] == undefined && localStorage["minifluxtoken"] == undefined) {
+if (localStorage["minifluxurl"] == undefined || localStorage["minifluxtoken"] == undefined) {
     update_status('info', 'enter your token to authenticate');
-
-    document.getElementById('minifluxurl').value = '';
-    document.getElementById('minifluxtoken').value = '';
-
-    //$('#check_update').hide();
 } else {
     load_settings();
 }

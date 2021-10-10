@@ -1,12 +1,14 @@
 function get_unread() {
     var headers = new Headers();
-    headers.append('X-Auth-Token', localStorage["minifluxtoken"]);
+    headers.append('X-Auth-Token', chrome.storage.local.get("minifluxtoken", () => {}));
     
-    fetch(localStorage["minifluxurl"] + '/v1/entries?status=unread&direction=desc', {
+    var miniflux_url = chrome.storage.local.get("minifluxurl", () => {return "https://rss.mechanus.net";}) + '/v1/entries?status=unread&direction=desc';
+
+    fetch(miniflux_url, {
             method:'GET',
             headers: headers,
         })
-        .catch(e => console.error(e.message))
+    //fetch(miniflux_url)
         .then(
             r => r.json()
         )
@@ -15,7 +17,7 @@ function get_unread() {
                 var count = new String();
                 if (obj.total > 0) {
                     count = obj.total.toString();
-                    if (localStorage["notifications"] == 1) {
+                    if (chrome.storage.local.get("notifications", () => {}) == 1) {
                         notification(obj.entries[0].feed.title);
                     }
                 } else {
@@ -33,10 +35,10 @@ function notification(from) {
         type: 'basic',
         iconUrl: '../img/icon.png',
         message: 'From: ' + from,
-        contextMessage: localStorage["minifluxurl"],
+        contextMessage: chrome.storage.local.get("minifluxurl", () => {}),
         isClickable: true
     }, function (notifId) {
-        linkMap[notifId] = localStorage["minifluxurl"] + '/unread';
+        linkMap[notifId] = chrome.storage.local.get("minifluxurl", () => {}) + '/unread';
     });
 
     chrome.notifications.onClicked.addListener(function (notifId) {
@@ -47,14 +49,13 @@ function notification(from) {
     });
 }
 
-if (localStorage["update_seconds"] != undefined) {
-    chrome.alarms.create("notification", { delayInMinutes: parseInt(localStorage["update_seconds"]), periodInMinutes: parseInt(localStorage["update_seconds"]) });
-} else {
-    chrome.alarms.create("notification", { delayInMinutes: 1, periodInMinutes: 1 });
-}
+chrome.runtime.onStartup.addListener(function() {
+    var update_seconds = 'update_seconds' in chrome.storage.local.get(() => {}) ? parseInt(chrome.storage.local.get("update_seconds", () => {})) : 1;
+    chrome.alarms.create("notification", {delayInMinutes: update_seconds, periodInMinutes: update_seconds});
+});
 
-  chrome.alarms.onAlarm.addListener(function(alarm) {
+chrome.alarms.onAlarm.addListener(function(alarm) {
     if (alarm.name === "notification") {
         get_unread();
     }
-  });
+});
