@@ -18,6 +18,7 @@ Features implemented so far:
 * clicking icon now updates the counter / sends notification
 
 TODO:
+* correctly handle unreachable miniflux instance (i.e. display that via icon or a badge)
 * migrate to manifest v3
 * clean up the code so that variable names make sense
 * probably implement an option to revert to old icon press behaviour
