@@ -31,23 +31,27 @@ if (localStorage["minifluxurl"] == undefined && localStorage["minifluxtoken"] ==
 document.getElementById('signupForm').addEventListener('submit', save_settings);
 
 if (localStorage["minifluxurl"] != undefined && localStorage["minifluxtoken"] != undefined) {
-    var headers = new Headers();
-    headers.append('X-Auth-Token', localStorage["minifluxtoken"]);
-
-    fetch(localStorage["minifluxurl"] + '/v1/me', {
-            method:'GET',
-            headers: headers,
-        })
-        .then(
-            response => {
-                if (!response.ok) {
-                    update_status('error', 'could not authenticate');
-                } else {
-                    update_status('success', 'connected to miniflux instance');
+    if (document.getElementById('minifluxurl').value.endsWith('/')) {
+        update_status('error', 'URL can\'t end in trailing slash');
+    } else {
+        var headers = new Headers();
+        headers.append('X-Auth-Token', localStorage["minifluxtoken"]);
+    
+        fetch(localStorage["minifluxurl"] + '/v1/me', {
+                method:'GET',
+                headers: headers,
+            })
+            .then(
+                response => {
+                    if (!response.ok) {
+                        update_status('error', 'could not authenticate');
+                    } else {
+                        update_status('success', 'connected to miniflux instance');
+                    }
                 }
-            }
-        )
-        .catch(
-            update_status("error", "could not reach miniflux instance")
-        );
+            )
+            .catch(
+                update_status("error", "could not reach miniflux instance")
+            );
+    }
 }
