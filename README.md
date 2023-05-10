@@ -18,11 +18,14 @@ Features implemented so far:
 * clicking icon now updates the counter / sends notification
 
 TODO:
-* correctly handle unreachable miniflux instance (i.e. display that via icon or a badge)
-* migrate to manifest v3
+* correctly handle unreachable miniflux instance (i.e. display that via icon or a badge) via `GET /healthcheck`
+* [x] migrate to manifest v3
+* migrate all call functions from popup to background
+* verify update period and notification settings are working as intended
+* use new `GET /feeds/counter` endpoint to decrease load when updating unread count
+* switch options to message bus instead of localstorage
+* change all then chains to async await
 * clean up the code so that variable names make sense
-* probably implement an option to revert to old icon press behaviour
-* probably bring back basic http auth as an option
 * streamline the options page, it doesn't look as good as I'd like it to
 
 Disclaimer:
