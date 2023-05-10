@@ -25,6 +25,7 @@ TODO:
 * use new `GET /feeds/counter` endpoint to decrease load when updating unread count
 * switch options to message bus instead of localstorage
 * change all then chains to async await
+* verify the refresh timer with alarm event api
 * clean up the code so that variable names make sense
 * streamline the options page, it doesn't look as good as I'd like it to
 
