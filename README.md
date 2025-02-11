@@ -1,7 +1,6 @@
 # Miniflux Notifier Remixed
 
-A fork of the [Miniflux Notifications](https://github.com/skorotkiewicz/miniflux-chrome-notifier) extension
-([chrome web store](https://chrome.google.com/webstore/detail/miniflux-notifications/jpeplhckmjlpahnkpblakfligkbfefkg)).
+A fork of the [Miniflux Notifications](https://github.com/skorotkiewicz/miniflux-chrome-notifier) extension.
 
 Sadly the original seems to have been abandoned, while the most requested
 feature: ability to disable notifications has never been implemented.
@@ -23,8 +22,8 @@ TODO:
 * migrate all call functions from popup to background
 * verify update period and notification settings are working as intended
 * use new `GET /feeds/counter` endpoint to decrease load when updating unread count
-* switch options to message bus instead of localstorage
-* change all then chains to async await
+* [x] switch options to message bus instead of localstorage
+* ~~change all then chains to async await~~
 * verify the refresh timer with alarm event api
 * clean up the code so that variable names make sense
 * streamline the options page, it doesn't look as good as I'd like it to

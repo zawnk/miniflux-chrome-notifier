@@ -1,15 +1,17 @@
+import { EMessageType } from "./constants";
+
 async function save_settings() {
-    localStorage["minifluxurl"] = (document.getElementById('minifluxurl') as HTMLInputElement).value
-    localStorage["minifluxtoken"] = (document.getElementById('minifluxtoken') as HTMLInputElement).value;
-    localStorage["update_seconds"] = (document.getElementById('update_seconds') as HTMLInputElement).value;
-    localStorage["notifications"] = (document.getElementById('notifications') as HTMLInputElement).checked ? 1 : 0;
+    chrome.runtime.sendMessage({ message: EMessageType.SetUrl, payload: (document.getElementById('minifluxurl') as HTMLInputElement).value })
+    chrome.runtime.sendMessage({ message: EMessageType.SetToken, payload: (document.getElementById('minifluxtoken') as HTMLInputElement).value })
+    chrome.runtime.sendMessage({ message: EMessageType.SetUpdatePeriod, payload: (document.getElementById('update_seconds') as HTMLInputElement).value})
+    chrome.runtime.sendMessage({ message: EMessageType.SetNotificationsEnabled, payload: (document.getElementById('notifications') as HTMLInputElement).checked })
 }
 
 async function load_settings() {
-    (document.getElementById('minifluxurl') as HTMLInputElement).value = localStorage["minifluxurl"];
-    (document.getElementById('minifluxtoken') as HTMLInputElement).value = localStorage["minifluxtoken"];
-    (document.getElementById('update_seconds') as HTMLInputElement).value = localStorage["update_seconds"];
-    (document.getElementById('notifications') as HTMLInputElement).checked = localStorage["notifications"] == 1 ? true : false;
+    (document.getElementById('minifluxurl') as HTMLInputElement).value = await chrome.runtime.sendMessage({ message: EMessageType.GetUrl });
+    (document.getElementById('minifluxtoken') as HTMLInputElement).value = await chrome.runtime.sendMessage({ message: EMessageType.GetToken });
+    (document.getElementById('update_seconds') as HTMLInputElement).value = await chrome.runtime.sendMessage({ message: EMessageType.GetUpdatePeriod });
+    (document.getElementById('notifications') as HTMLInputElement).checked = await chrome.runtime.sendMessage({ message: EMessageType.GetNotificationsEnabled });
 }
 
 function update_status(cls: string, txt: string) {
@@ -18,7 +20,10 @@ function update_status(cls: string, txt: string) {
 }
 
 async function startup() {
-    if (localStorage["minifluxurl"] == undefined && localStorage["minifluxtoken"] == undefined) {
+    const currentUrl = await chrome.runtime.sendMessage({ message: EMessageType.GetUrl })
+    const currentToken = await chrome.runtime.sendMessage({ message: EMessageType.GetToken })
+
+    if (currentUrl == undefined && currentToken == undefined) {
         update_status('info', 'enter your token to authenticate');
     
         (document.getElementById('minifluxurl') as HTMLInputElement).value = '';
@@ -31,14 +36,14 @@ async function startup() {
     
     document.getElementById('signupForm')?.addEventListener('submit', save_settings);
     
-    if (localStorage["minifluxurl"] != undefined && localStorage["minifluxtoken"] != undefined) {
+    if (currentUrl != undefined && currentToken != undefined) {
         if ((document.getElementById('minifluxurl') as HTMLInputElement).value.endsWith('/')) {
             update_status('error', 'URL can\'t end in trailing slash');
         } else {
             var headers = new Headers();
-            headers.append('X-Auth-Token', localStorage["minifluxtoken"]);
+            headers.append('X-Auth-Token', currentToken);
         
-            fetch(localStorage["minifluxurl"] + '/v1/me', {
+            fetch(currentUrl + '/v1/me', {
                     method:'GET',
                     headers: headers,
                 })

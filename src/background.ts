@@ -3,97 +3,92 @@ import { EMessageType, IEventMessage } from "./constants";
 chrome.runtime.onMessage.addListener((request: IEventMessage, sender, sendResponse) => {
     switch (request.message) {
         case EMessageType.GetToken:
-            sendResponse(getToken())
+            getToken().then(sendResponse);
             break;
         case EMessageType.SetToken:
-            sendResponse(setToken(request.payload))
+            setToken(request.payload).then(sendResponse);
             break;
         case EMessageType.GetUrl:
-            sendResponse(getUrl())
+            getUrl().then(sendResponse);
             break;
         case EMessageType.SetUrl:
-            sendResponse(setUrl(request.payload))
+            setUrl(request.payload).then(sendResponse);
             break;
         case EMessageType.GetUpdatePeriod:
-            sendResponse(getUpdatePeriod())
+            getUpdatePeriod().then(sendResponse);
             break;
         case EMessageType.SetUpdatePeriod:
-            sendResponse(setUpdatePeriod(request.payload))
+            setUpdatePeriod(request.payload).then(sendResponse);
             break;
         case EMessageType.GetNotificationsEnabled:
-            sendResponse(getNotificationEnabled())
+            getNotificationEnabled().then(sendResponse);
             break;
         case EMessageType.SetNotificationsEnabled:
-            sendResponse(setNotificationEnabled(request.payload))
+            setNotificationEnabled(request.payload).then(sendResponse);
             break;
         case EMessageType.UpdateUnreadCount:
-            updateUnreadCount()
-            sendResponse(true)
+            updateUnreadCount().then(sendResponse);;
             break;
         default:
+            sendResponse({})
             break;
     }
-
-})
+    return true; // Required for async sendResponse
+});
 
 async function getToken() {
-    return (await chrome.storage.local.get(['minifluxtoken'])).minifluxtoken
+    return (await chrome.storage.local.get('minifluxtoken')).minifluxtoken;
 }
 
 async function setToken(token: string) {
-    return await chrome.storage.local.set({minifluxtoken: token})
+    return await chrome.storage.local.set({ minifluxtoken: token });
 }
 
 async function getUrl() {
-    return (await chrome.storage.local.get(['minifluxurl'])).minifluxurl
+    return (await chrome.storage.local.get('minifluxurl')).minifluxurl;
 }
 
 async function setUrl(url: string) {
-    return await chrome.storage.local.set({minifluxurl: url})
+    return await chrome.storage.local.set({ minifluxurl: url });
 }
 
 async function getUpdatePeriod() {
-    return (await chrome.storage.local.get(['minifluxupdateperiod'])).minifluxupdateperiod
+    return Number((await chrome.storage.local.get('minifluxupdateperiod')).minifluxupdateperiod);
 }
 
 async function setUpdatePeriod(updatePeriod: number) {
-    return await chrome.storage.local.set({minifluxupdateperiod: updatePeriod})
+    return await chrome.storage.local.set({ minifluxupdateperiod: updatePeriod });
 }
 
 async function getNotificationEnabled() {
-    return (await chrome.storage.local.get(['minifluxnotificationcount'])).minifluxnotificationcount
+    return (await chrome.storage.local.get('minifluxnotificationcount')).minifluxnotificationcount;
 }
 
 async function setNotificationEnabled(notificationEnabled: boolean) {
-    return await chrome.storage.local.set({minifluxnotificationcount: notificationEnabled})
+    return await chrome.storage.local.set({ minifluxnotificationcount: notificationEnabled });
 }
-
 
 async function updateUnreadCount() {
     var headers = new Headers();
     headers.append('X-Auth-Token', await getToken());
-    
+
     fetch(await getUrl() + '/v1/entries?status=unread&direction=desc', {
-            method:'GET',
-            headers: headers,
-        })
-        .then(
-            r => r.json()
-        )
-        .then(
-            async (obj) => {
-                let count: string;
-                if (obj.total > 0) {
-                    count = obj.total.toString();
-                    if (await getNotificationEnabled() == true) {
-                        notification(obj.entries[0].feed.title);
-                    }
-                } else {
-                    count = '';
+        method: 'GET',
+        headers: headers,
+    })
+        .then(r => r.json())
+        .then(async (obj) => {
+            let count: string;
+            if (obj.total > 0) {
+                count = obj.total.toString();
+                if (await getNotificationEnabled() == true) {
+                    notification(obj.entries[0].feed.title);
                 }
-                chrome.action.setBadgeText({ text: count });
+            } else {
+                count = '';
             }
-        );
+            chrome.action.setBadgeText({ text: count });
+        });
 }
 
 async function notification(from: string) {
@@ -118,26 +113,29 @@ async function notification(from: string) {
 }
 
 async function open_miniflux() {
-    chrome.tabs.create({url: await getUrl() + '/unread'});
+    chrome.tabs.create({ url: await getUrl() + '/unread' });
 }
 
+chrome.runtime.onInstalled.addListener(() => {
 chrome.contextMenus.create({
     id: 'open-miniflux',
     title: 'Open Miniflux',
     contexts: ["browser_action"]
-})
+});
+});
 
-chrome.contextMenus.onClicked.addListener(open_miniflux)
+chrome.contextMenus.onClicked.addListener(open_miniflux);
 
 async function startupBackground() {
     var update_period = await getUpdatePeriod() || 1;
-    chrome.alarms.create("notification", {delayInMinutes: update_period, periodInMinutes: update_period});
-    
-    chrome.alarms.onAlarm.addListener(function(alarm) {
+    chrome.alarms.create("notification", { delayInMinutes: update_period, periodInMinutes: update_period });
+
+    chrome.alarms.onAlarm.addListener(function (alarm) {
         if (alarm.name === "notification") {
             updateUnreadCount();
         }
     });
 }
+
 updateUnreadCount();
 startupBackground();

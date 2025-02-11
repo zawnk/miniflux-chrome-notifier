@@ -1,15 +1,36 @@
 import { EMessageType } from "./constants";
 
-if (localStorage["minifluxurl"] === undefined) {
-    chrome.tabs.create({url: "options.html"});
-    self.close();
+let savedUrl: string;
+let savedToken: string;
+let headers = new Headers();
+
+async function initializeSettings() {
+    savedUrl = await chrome.runtime.sendMessage({ message: EMessageType.GetUrl });
+    savedToken = await chrome.runtime.sendMessage({ message: EMessageType.GetToken });
+    headers.append('X-Auth-Token', savedToken);
 }
 
-var headers = new Headers();
-headers.append('X-Auth-Token', localStorage["minifluxtoken"]);
+async function checkAndOpenOptions() {
+    await initializeSettings();
+
+    if (!savedUrl) {
+        chrome.tabs.create({ url: "options.html" });
+        self.close();
+    } else {
+        openMenu();
+    }
+}
+
+checkAndOpenOptions();
+
+async function openMenu() {
+    chrome.runtime.sendMessage({ message: EMessageType.UpdateUnreadCount })
+    const itemList = await getTenUnreadItems();
+    fillListWithUnread(itemList);
+}
 
 async function getTenUnreadItems() {
-    const resp = await fetch(localStorage["minifluxurl"] + '/v1/entries?status=unread&direction=desc&limit=10', {
+    const resp = await fetch(savedUrl + '/v1/entries?status=unread&direction=desc&limit=10', {
         method:'GET',
         headers: headers,
     });
@@ -28,7 +49,7 @@ async function fillListWithUnread(itemList: any[]) {
     let generatedList = '<ul>';
 
     for (const item of itemList) {
-        const resp = await fetch(localStorage["minifluxurl"] + `/v1/feeds/${item.feed.id}/icon`, {
+        const resp = await fetch(savedUrl + `/v1/feeds/${item.feed.id}/icon`, {
             method:'GET',
             headers: headers,
         });
@@ -50,14 +71,14 @@ async function fillListWithUnread(itemList: any[]) {
 }
 
 async function markAsReadAndOpen(id: number) {
-    const url = await fetch(localStorage["minifluxurl"] + `/v1/entries/${id}`, {
+    const url = await fetch(savedUrl + `/v1/entries/${id}`, {
         method:'GET',
         headers: headers,
     });
 
     const entryUrl = (await url.json()).url;
 
-    await fetch(localStorage["minifluxurl"] + '/v1/entries', {
+    await fetch(savedUrl + '/v1/entries', {
         method:'PUT',
         headers: headers,
         body: JSON.stringify({
@@ -72,7 +93,7 @@ async function markAsReadAndOpen(id: number) {
 }
 
 async function markAsReadAndRemove(id: number) {
-    await fetch(localStorage["minifluxurl"] + '/v1/entries', {
+    await fetch(savedUrl + '/v1/entries', {
         method:'PUT',
         headers: headers,
         body: JSON.stringify({
@@ -85,10 +106,3 @@ async function markAsReadAndRemove(id: number) {
     chrome.runtime.sendMessage({ message: EMessageType.UpdateUnreadCount })
 }
 
-async function openMenu() {
-    chrome.runtime.sendMessage({ message: EMessageType.UpdateUnreadCount })
-    const itemList = await getTenUnreadItems();
-    fillListWithUnread(itemList);
-} 
-
-openMenu();
